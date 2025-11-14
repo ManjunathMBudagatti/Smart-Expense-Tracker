@@ -15,12 +15,12 @@ let currentMonthIndex = 0;
 let userName = localStorage.getItem(LS_USER_NAME) || 'User';
 
 // elements
-const balanceEl = document.getElementById('balance'); // Dashboard display
-const balanceSettingDisplay = document.getElementById('balanceSettingDisplay'); // Settings display
+const balanceEl = document.getElementById('balance'); 
+const balanceSettingDisplay = document.getElementById('balanceSettingDisplay'); 
 const initialBalanceInput = document.getElementById('initialBalanceInput');
-const totalSpentEl = document.getElementById('totalSpent'); // Dashboard display
-const totalSpentSettingDisplay = document.getElementById('totalSpentSettingDisplay'); // Settings display
-const totalCountEl = document.getElementById('totalCount');
+const totalSpentEl = document.getElementById('totalSpent'); 
+const totalSpentSettingDisplay = document.getElementById('totalSpentSettingDisplay'); 
+const totalCountEl = document.getElementById('totalCount'); 
 const monthlyTotalEl = document.getElementById('monthlyTotal');
 const topCatEl = document.getElementById('topCat');
 const catList = document.getElementById('catList');
@@ -54,8 +54,8 @@ let lineChart = null, pieChart = null, barChartMock = null, doughnutChartMock = 
     currentMonthIndex = 0;
     
     // Set initial values
-    initialBalanceInput.value = initialBalance.toFixed(2);
-    userNameEl.textContent = userName;
+    if(initialBalanceInput) initialBalanceInput.value = initialBalance.toFixed(2);
+    if(userNameEl) userNameEl.textContent = userName;
 
     renderCats();
     await updateAll(); 
@@ -95,22 +95,24 @@ function initViewSwitching() {
     });
 
     // Start on Dashboard view
-    document.getElementById('dashboard-view').classList.add('active');
+    const dashboardView = document.getElementById('dashboard-view');
+    if (dashboardView) dashboardView.classList.add('active');
 }
 
 window.editUserName = function() {
-    const newName = prompt("Enter your new user name:", userNameEl.textContent);
+    const currentName = userNameEl ? userNameEl.textContent : 'User';
+    const newName = prompt("Enter your new user name:", currentName);
     if (newName !== null && newName.trim() !== "") {
         userName = newName.trim();
-        userNameEl.textContent = userName;
+        if(userNameEl) userNameEl.textContent = userName;
         localStorage.setItem(LS_USER_NAME, userName);
     }
 }
 
 
 async function fetchMonthlyExpenses(index = currentMonthIndex) {
-    statusMessageEl.textContent = 'Fetching monthly data...';
-    // ... (API fetching logic remains the same) ...
+    if(statusMessageEl) statusMessageEl.textContent = 'Fetching monthly data...';
+
     if (index === -1) {
         index = 0; 
     }
@@ -128,17 +130,16 @@ async function fetchMonthlyExpenses(index = currentMonthIndex) {
         }
         const data = await response.json();
         expenses = data;
-        statusMessageEl.textContent = '';
+        if(statusMessageEl) statusMessageEl.textContent = '';
     } catch (error) {
         console.error('Error fetching monthly expenses:', error);
-        statusMessageEl.textContent = `Error: Could not fetch data. Is the API running at ${API_BASE}?`;
+        if(statusMessageEl) statusMessageEl.textContent = `Error: Could not fetch data. Is the API running at ${API_BASE}?`;
         expenses = [];
     }
     return expenses;
 }
 
 async function fetchAllTimeExpenses() {
-    // ... (API fetching logic remains the same) ...
     const now = new Date();
     const promises = [];
     for (let i = 0; i < 12; i++) {
@@ -165,6 +166,7 @@ function saveCategoryState() {
 }
 
 function renderCats() {
+    if(!catList || !catSelect) return;
     catList.innerHTML = ''; catSelect.innerHTML = '';
     categories.forEach(c => {
         const d = document.createElement('div'); d.className = 'cat'; d.textContent = c; catList.appendChild(d);
@@ -174,6 +176,7 @@ function renderCats() {
 }
 
 function initMonthSelector() {
+    if(!monthSelector) return;
     monthSelector.innerHTML = '';
     const now = new Date();
     const options = [
@@ -200,12 +203,12 @@ function initMonthSelector() {
 }
 
 function initEvents() {
-    addExpenseBtn.onclick = () => openModal();
-    cancelBtn.onclick = closeModal;
-    saveBtn.onclick = onSave;
+    if (addExpenseBtn) addExpenseBtn.onclick = () => openModal();
+    if (cancelBtn) cancelBtn.onclick = closeModal;
+    if (saveBtn) saveBtn.onclick = onSave;
     
     // Balance Input Listener
-    initialBalanceInput.addEventListener('change', (e) => {
+    if(initialBalanceInput) initialBalanceInput.addEventListener('change', (e) => {
         const newBalance = parseFloat(e.target.value);
         if (!isNaN(newBalance) && newBalance >= 0) {
             initialBalance = newBalance;
@@ -213,13 +216,13 @@ function initEvents() {
             updateAll();
         } else {
             alert('Please enter a valid balance.');
-            e.target.value = initialBalance.toFixed(2); // Revert on invalid input
+            e.target.value = initialBalance.toFixed(2); 
         }
     });
 
-    exportBtn.addEventListener('click', exportCSV);
+    if(exportBtn) exportBtn.addEventListener('click', exportCSV);
 
-    expenseTableBody.addEventListener('click', e => {
+    if(expenseTableBody) expenseTableBody.addEventListener('click', e => {
         const id = e.target.closest('[data-id]')?.dataset?.id;
         if (!id) return;
         if (e.target.matches('.edit') || e.target.matches('.del')) {
@@ -234,15 +237,16 @@ function openModal(id = null) {
         return;
     }
     editingId = id;
-    modalBackdrop.style.display = 'flex';
-    document.getElementById('modalTitle').textContent = 'Add Expense';
+    if (modalBackdrop) modalBackdrop.style.display = 'flex';
+    const modalTitle = document.getElementById('modalTitle');
+    if (modalTitle) modalTitle.textContent = 'Add Expense';
 
-    amtIn.value = '';
-    catSelect.selectedIndex = 0;
-    noteIn.value = '';
-    dateIn.value = new Date().toISOString().slice(0, 10);
+    if(amtIn) amtIn.value = '';
+    if(catSelect) catSelect.selectedIndex = 0;
+    if(noteIn) noteIn.value = '';
+    if(dateIn) dateIn.value = new Date().toISOString().slice(0, 10);
 }
-function closeModal() { modalBackdrop.style.display = 'none'; editingId = null; }
+function closeModal() { if(modalBackdrop) modalBackdrop.style.display = 'none'; editingId = null; }
 
 // API CALL: POST new expense
 async function onSave() {
@@ -263,7 +267,7 @@ async function onSave() {
     };
 
     closeModal();
-    statusMessageEl.textContent = 'Saving expense...';
+    if(statusMessageEl) statusMessageEl.textContent = 'Saving expense...';
 
     try {
         const response = await fetch(API_BASE, {
@@ -277,7 +281,7 @@ async function onSave() {
 
         if (response.status === 201) {
             const newExpense = await response.json();
-            statusMessageEl.textContent = 'Expense saved successfully!';
+            if(statusMessageEl) statusMessageEl.textContent = 'Expense saved successfully!';
 
             const expenseMonth = new Date(newExpense.date);
             const now = new Date();
@@ -286,21 +290,21 @@ async function onSave() {
 
             if (diffMonths >= 0 && diffMonths <= 11) {
                 currentMonthIndex = diffMonths;
-                monthSelector.value = diffMonths.toString();
+                if(monthSelector) monthSelector.value = diffMonths.toString();
             } else {
                 currentMonthIndex = 0;
-                monthSelector.value = '0';
+                if(monthSelector) monthSelector.value = '0';
             }
         } else {
             throw new Error(`API returned status ${response.status}: ${await response.text()}`);
         }
     } catch (error) {
         console.error('Error saving expense:', error);
-        statusMessageEl.textContent = `Error saving expense: ${error.message}. Check console.`;
+        if(statusMessageEl) statusMessageEl.textContent = `Error saving expense: ${error.message}. Check console.`;
     }
 
     await updateAll();
-    setTimeout(() => { statusMessageEl.textContent = ''; }, 3000);
+    setTimeout(() => { if(statusMessageEl) statusMessageEl.textContent = ''; }, 3000);
 }
 
 function renderTable() {
@@ -308,7 +312,7 @@ function renderTable() {
 
     const rows = monthlyExpenses.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    expenseTableBody.innerHTML = rows.map(r => `<tr data-id="${r.id}">
+    if(expenseTableBody) expenseTableBody.innerHTML = rows.map(r => `<tr data-id="${r.id}">
         <td>${r.date.slice(0, 10)}</td>
         <td>${escapeHtml(r.note || '')}</td>
         <td>${r.categoryName}</td>
@@ -340,14 +344,14 @@ function renderDashboard() {
     // Balance Calculation
     const currentBalance = initialBalance - allTotal;
     
-    // Update Dashboard View
-    balanceEl.textContent = `₹${currentBalance.toFixed(2)}`;
-    totalSpentEl.textContent = `₹${allTotal.toFixed(2)}`;
+    // Update Dashboard View (Fixing the TypeError by checking existence)
+    if (balanceEl) balanceEl.textContent = `₹${currentBalance.toFixed(2)}`;
+    if (totalSpentEl) totalSpentEl.textContent = `₹${allTotal.toFixed(2)}`;
     
-    // Update Settings View
-    balanceSettingDisplay.textContent = `₹${currentBalance.toFixed(2)}`;
-    totalSpentSettingDisplay.textContent = `₹${allTotal.toFixed(2)}`;
-    initialBalanceInput.value = initialBalance.toFixed(2); // Keep the input updated
+    // Update Settings View (Fixing the TypeError by checking existence)
+    if (balanceSettingDisplay) balanceSettingDisplay.textContent = `₹${currentBalance.toFixed(2)}`;
+    if (totalSpentSettingDisplay) totalSpentSettingDisplay.textContent = `₹${allTotal.toFixed(2)}`;
+    if (initialBalanceInput) initialBalanceInput.value = initialBalance.toFixed(2); 
 
     const currentPeriodExpenses = expenses;
 
@@ -357,20 +361,20 @@ function renderDashboard() {
     currentPeriodExpenses.forEach(e => byCat[e.categoryName] = (byCat[e.categoryName] || 0) + Number(e.amount || 0));
     const topCat = Object.keys(byCat).sort((a, b) => byCat[b] - byCat[a])[0] || '-';
 
-    monthlyTotalEl.textContent = `₹${periodTotal.toFixed(2)}`;
-    totalCountEl.textContent = currentPeriodExpenses.length;
-    topCatEl.textContent = topCat;
+    if (monthlyTotalEl) monthlyTotalEl.textContent = `₹${periodTotal.toFixed(2)}`;
+    if (totalCountEl) totalCountEl.textContent = currentPeriodExpenses.length;
+    if (topCatEl) topCatEl.textContent = topCat;
 }
 
 // Charts
 function initCharts() {
-    // Shared chart options for dark theme and light text
+    // Shared chart options for dark theme and **BLACK** text
     const sharedOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: { 
-                labels: { color: 'var(--text-light)', boxWidth: 12, padding: 15 }
+                labels: { color: 'black', boxWidth: 12, padding: 15 } 
             },
             tooltip: { 
                 callbacks: { 
@@ -383,112 +387,124 @@ function initCharts() {
             y: { 
                 beginAtZero: true, 
                 grid: { color: 'var(--border-subtle)' }, 
-                ticks: { color: 'var(--text-light)', callback: (v) => '₹' + v.toLocaleString() } 
+                ticks: { color: 'black', callback: (v) => '₹' + v.toLocaleString() } 
             },
             x: { 
                 grid: { display: false }, 
-                ticks: { color: 'var(--text-light)' } 
+                ticks: { color: 'black' } 
             }
         }
     };
     
-    // 1. Monthly Expenses Trend (Line/Bar Chart - Existing)
-    const lineCtx = document.getElementById('lineChart').getContext('2d');
-    lineChart = new Chart(lineCtx, {
-        type: 'bar',
-        data: {
-            labels: [], datasets: [{
-                label: 'Total Spent',
-                data: [],
-                backgroundColor: 'rgba(167, 243, 208, 0.9)', 
-                borderRadius: 4
-            }]
-        },
-        options: {
-            ...sharedOptions, // Apply shared options
-            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => '₹' + context.parsed.y.toFixed(2) } } },
-        }
-    });
-
-    // 2. Spending by Category (Doughnut Chart - Existing)
-    const pieCtx = document.getElementById('pieChart').getContext('2d');
-    pieChart = new Chart(pieCtx, {
-        type: 'doughnut',
-        data: { 
-            labels: [], 
-            datasets: [{ 
-                data: [], 
-                backgroundColor: ['#34d399', '#38bdf8', '#f97316', '#a855f7', '#ef4444', '#64748b'] 
-            }] 
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { 
-                    position: 'bottom', 
-                    labels: { color: 'var(--text-light)', boxWidth: 12, padding: 15 }
-                },
-                tooltip: { callbacks: { label: (context) => context.label + ': ₹' + context.parsed.toLocaleString(undefined, { minimumFractionDigits: 2 }) + ' (' + (context.parsed / context.dataset.data.reduce((a, b) => a + b, 0) * 100).toFixed(1) + '%)' } }
+    // 1. Monthly Expenses Trend (Bar Chart - LineChart ID for consistency)
+    const lineCtx = document.getElementById('lineChart');
+    if(lineCtx) {
+        lineChart = new Chart(lineCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: [], datasets: [{
+                    label: 'Total Spent',
+                    data: [],
+                    backgroundColor: 'rgba(167, 243, 208, 0.9)', 
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                ...sharedOptions, 
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => '₹' + context.parsed.y.toFixed(2) } } },
             }
-        }
-    });
+        });
+    }
+
+    // 2. Spending by Category (Doughnut Chart)
+    const pieCtx = document.getElementById('pieChart');
+    if(pieCtx) {
+        pieChart = new Chart(pieCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    data: [], 
+                    backgroundColor: ['#34d399', '#38bdf8', '#f97316', '#a855f7', '#ef4444', '#64748b'] 
+                }] 
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { color: 'black', boxWidth: 12, padding: 15 }
+                    },
+                    tooltip: { callbacks: { label: (context) => context.label + ': ₹' + context.parsed.toLocaleString(undefined, { minimumFractionDigits: 2 }) + ' (' + (context.parsed / context.dataset.data.reduce((a, b) => a + b, 0) * 100).toFixed(1) + '%)' } }
+                }
+            }
+        });
+    }
 
     // 3. Mock Bar Chart (Total Expenses by Month)
-    const barCtx = document.getElementById('barChartMock').getContext('2d');
-    barChartMock = new Chart(barCtx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'Cumulative Total',
-                data: [5000, 7500, 11000, 15000, 17000, 20000],
-                borderColor: '#f97316',
-                tension: 0.3,
-                fill: false,
-            }]
-        },
-        options: {
-            ...sharedOptions, 
-            plugins: { legend: { display: false } },
-            scales: {
-                ...sharedOptions.scales,
-                y: { 
-                    ...sharedOptions.scales.y,
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                    ticks: { color: 'var(--text-light)' } 
-                },
+    const barCtx = document.getElementById('barChartMock');
+    if(barCtx) {
+        barChartMock = new Chart(barCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Cumulative Total',
+                    data: [5000, 7500, 11000, 15000, 17000, 20000],
+                    borderColor: '#f97316',
+                    tension: 0.3,
+                    fill: false,
+                }]
+            },
+            options: {
+                ...sharedOptions, 
+                plugins: { legend: { display: false } },
+                scales: {
+                    ...sharedOptions.scales,
+                    y: { 
+                        ...sharedOptions.scales.y,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: 'black' } 
+                    },
+                    x: {
+                        ...sharedOptions.scales.x,
+                        ticks: { color: 'black' }
+                    }
+                }
             }
-        }
-    });
+        });
+    }
 
     // 4. Mock Doughnut Chart (Top Categories Annual)
-    const doughnutCtx = document.getElementById('doughnutChartMock').getContext('2d');
-    doughnutChartMock = new Chart(doughnutCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Food', 'Bills', 'Transport', 'Other'],
-            datasets: [{
-                data: [4500, 3000, 1500, 1000],
-                backgroundColor: ['#34d399', '#38bdf8', '#ef4444', '#64748b'] 
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { 
-                    position: 'bottom', 
-                    labels: { color: 'var(--text-light)', boxWidth: 12, padding: 15 }
-                },
-                tooltip: { callbacks: { label: (context) => context.label + ': ₹' + context.parsed.toLocaleString() } }
+    const doughnutCtx = document.getElementById('doughnutChartMock');
+    if(doughnutCtx) {
+        doughnutChartMock = new Chart(doughnutCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Food', 'Bills', 'Transport', 'Other'],
+                datasets: [{
+                    data: [4500, 3000, 1500, 1000],
+                    backgroundColor: ['#34d399', '#38bdf8', '#ef4444', '#64748b'] 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { color: 'black', boxWidth: 12, padding: 15 }
+                    },
+                    tooltip: { callbacks: { label: (context) => context.label + ': ₹' + context.parsed.toLocaleString() } }
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 function updateCharts() {
-    // Logic for updating the primary charts (lineChart and pieChart)
+    // Primary Charts Update Logic (remains the same)
     const now = new Date();
     const numMonths = 6;
     const monthKeys = [];
@@ -508,26 +524,28 @@ function updateCharts() {
         if (monthMap[key] !== undefined) monthMap[key] += Number(e.amount || 0);
     });
 
-    const lineData = monthKeys.map(k => monthMap[k] || 0);
-    lineChart.data.labels = monthKeys.map(k => { const p = k.split('-'); return new Date(p[0], p[1] - 1, 1).toLocaleString(undefined, { month: 'short' }); });
-    lineChart.data.datasets[0].data = lineData;
-    lineChart.update();
+    if (lineChart) {
+        const lineData = monthKeys.map(k => monthMap[k] || 0);
+        lineChart.data.labels = monthKeys.map(k => { const p = k.split('-'); return new Date(p[0], p[1] - 1, 1).toLocaleString(undefined, { month: 'short' }); });
+        lineChart.data.datasets[0].data = lineData;
+        lineChart.update();
+    }
 
-    const currentPeriodExpenses = expenses;
-    const byCat = {};
-    currentPeriodExpenses.forEach(e => byCat[e.categoryName] = (byCat[e.categoryName] || 0) + Number(e.amount || 0));
-    const labels = Object.keys(byCat);
-    const data = labels.map(l => byCat[l]);
+    if (pieChart) {
+        const currentPeriodExpenses = expenses;
+        const byCat = {};
+        currentPeriodExpenses.forEach(e => byCat[e.categoryName] = (byCat[e.categoryName] || 0) + Number(e.amount || 0));
+        const labels = Object.keys(byCat);
+        const data = labels.map(l => byCat[l]);
 
-    pieChart.data.labels = labels;
-    pieChart.data.datasets[0].data = data;
-    pieChart.update();
-    
-    // Mock charts are not updated with real API data yet, they show placeholders
+        pieChart.data.labels = labels;
+        pieChart.data.datasets[0].data = data;
+        pieChart.update();
+    }
 }
 
 function exportCSV() {
-    if (!allTimeExpenses.length) return alert('no expenses to export');
+    if (!allTimeExpenses.length) return alert('No expenses to export');
     const headers = ['Date', 'Category', 'Note', 'Amount'];
     const rows = allTimeExpenses.map(e => [e.date.slice(0, 10), e.categoryName, '"' + (e.note || '') + '"', e.amount]);
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
