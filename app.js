@@ -10,7 +10,7 @@ let expenses = [];
 let allTimeExpenses = [];
 let categories = JSON.parse(localStorage.getItem(LS_CATS) || 'null') || defaultCats.slice();
 let initialBalance = parseFloat(localStorage.getItem(LS_BALANCE) || '100000');
-let editingId = null;
+let editingId = null; // Stores UUID string for editing
 let currentMonthIndex = 0; 
 let userName = localStorage.getItem(LS_USER_NAME) || 'User';
 
@@ -142,6 +142,7 @@ async function fetchMonthlyExpenses(index = currentMonthIndex) {
 async function fetchAllTimeExpenses() {
     const now = new Date();
     const promises = [];
+    // Fetch data for the last 12 months for comprehensive calculations/charts
     for (let i = 0; i < 12; i++) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const year = d.getFullYear();
@@ -155,7 +156,8 @@ async function fetchAllTimeExpenses() {
 
     const uniqueExpenses = {};
     allTimeExpenses.forEach(exp => {
-        uniqueExpenses[exp.id || exp.note + exp.amount + exp.date] = exp;
+        // Use exp.id (UUID) as the primary key
+        uniqueExpenses[exp.id] = exp;
     });
     allTimeExpenses = Object.values(uniqueExpenses);
 }
@@ -223,32 +225,52 @@ function initEvents() {
     if(exportBtn) exportBtn.addEventListener('click', exportCSV);
 
     if(expenseTableBody) expenseTableBody.addEventListener('click', e => {
-        const id = e.target.closest('[data-id]')?.dataset?.id;
+        const id = e.target.closest('tr')?.dataset?.id; 
         if (!id) return;
-        if (e.target.matches('.edit') || e.target.matches('.del')) {
-            alert('Edit and Delete actions are disabled until the corresponding PUT/DELETE API endpoints are implemented.');
+
+        if (e.target.matches('.edit')) {
+            openModal(id); // Pass the UUID to openModal for editing
+        } else if (e.target.matches('.del')) {
+            deleteExpense(id); // Pass the UUID to the delete function
         }
     });
 }
 
+/**
+ * Opens the modal, optionally loading data for editing.
+ * @param {string | null} id - The UUID of the expense to edit, or null for a new expense.
+ */
 function openModal(id = null) {
-    if (id) {
-        alert('Editing is disabled until the API provides a PUT/PATCH endpoint.');
-        return;
-    }
     editingId = id;
     if (modalBackdrop) modalBackdrop.style.display = 'flex';
     const modalTitle = document.getElementById('modalTitle');
-    if (modalTitle) modalTitle.textContent = 'Add Expense';
 
-    if(amtIn) amtIn.value = '';
-    if(catSelect) catSelect.selectedIndex = 0;
-    if(noteIn) noteIn.value = '';
-    if(dateIn) dateIn.value = new Date().toISOString().slice(0, 10);
+    if (id) {
+        // **EDIT MODE**: Load existing data
+        const expenseToEdit = allTimeExpenses.find(e => e.id === id);
+        if (modalTitle) modalTitle.textContent = 'Edit Expense';
+        
+        if (expenseToEdit) {
+            if(amtIn) amtIn.value = expenseToEdit.amount.toFixed(2);
+            if(catSelect) catSelect.value = expenseToEdit.categoryName;
+            if(noteIn) noteIn.value = expenseToEdit.note;
+            // Date format from API is "YYYY-MM-DDTHH:MM:SS.sssZ", need YYYY-MM-DD for input
+            if(dateIn) dateIn.value = expenseToEdit.date.slice(0, 10);
+        }
+    } else {
+        // **ADD MODE**
+        if (modalTitle) modalTitle.textContent = 'Add Expense';
+        if(amtIn) amtIn.value = '';
+        if(catSelect) catSelect.selectedIndex = 0;
+        if(noteIn) noteIn.value = '';
+        if(dateIn) dateIn.value = new Date().toISOString().slice(0, 10);
+    }
 }
 function closeModal() { if(modalBackdrop) modalBackdrop.style.display = 'none'; editingId = null; }
 
-// API CALL: POST new expense
+/**
+ * Handles both POST (Add) and PUT (Edit) operations.
+ */
 async function onSave() {
     const a = parseFloat(amtIn.value);
     const c = catSelect.value;
@@ -260,6 +282,8 @@ async function onSave() {
     const apiDate = `${d}T00:00:00.000Z`;
 
     const expenseData = {
+        // ID is required for PUT (Edit) to match the API structure
+        ...(editingId && { id: editingId }), 
         "date": apiDate,
         "note": n,
         "amount": a,
@@ -267,11 +291,13 @@ async function onSave() {
     };
 
     closeModal();
-    if(statusMessageEl) statusMessageEl.textContent = 'Saving expense...';
+    const method = editingId ? 'PUT' : 'POST';
+    const url = editingId ? `${API_BASE}/${editingId}` : API_BASE;
+    if(statusMessageEl) statusMessageEl.textContent = `${method === 'POST' ? 'Adding' : 'Updating'} expense...`;
 
     try {
-        const response = await fetch(API_BASE, {
-            method: 'POST',
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -279,47 +305,88 @@ async function onSave() {
             body: JSON.stringify(expenseData)
         });
 
-        if (response.status === 201) {
-            const newExpense = await response.json();
-            if(statusMessageEl) statusMessageEl.textContent = 'Expense saved successfully!';
-
-            const expenseMonth = new Date(newExpense.date);
-            const now = new Date();
-            const diffYears = now.getFullYear() - expenseMonth.getFullYear();
-            const diffMonths = now.getMonth() - expenseMonth.getMonth() + (diffYears * 12);
-
-            if (diffMonths >= 0 && diffMonths <= 11) {
-                currentMonthIndex = diffMonths;
-                if(monthSelector) monthSelector.value = diffMonths.toString();
-            } else {
-                currentMonthIndex = 0;
-                if(monthSelector) monthSelector.value = '0';
-            }
+        // API returns 200 for PUT and 201 for POST (or sometimes 200 for both)
+        if (response.status === 200 || response.status === 201) {
+            if(statusMessageEl) statusMessageEl.textContent = `Expense ${method === 'POST' ? 'added' : 'updated'} successfully!`;
+            
+            // Logic to update currentMonthIndex after a successful POST (Add)
+            if (method === 'POST' && response.status === 201) {
+                 const newExpense = await response.json();
+                 const expenseMonth = new Date(newExpense.date);
+                 const now = new Date();
+                 const diffYears = now.getFullYear() - expenseMonth.getFullYear();
+                 const diffMonths = now.getMonth() - expenseMonth.getMonth() + (diffYears * 12);
+     
+                 if (diffMonths >= 0 && diffMonths <= 11) {
+                     currentMonthIndex = diffMonths;
+                     if(monthSelector) monthSelector.value = diffMonths.toString();
+                 } else {
+                     currentMonthIndex = 0;
+                     if(monthSelector) monthSelector.value = '0';
+                 }
+             }
         } else {
             throw new Error(`API returned status ${response.status}: ${await response.text()}`);
         }
     } catch (error) {
-        console.error('Error saving expense:', error);
-        if(statusMessageEl) statusMessageEl.textContent = `Error saving expense: ${error.message}. Check console.`;
+        console.error(`Error ${method === 'POST' ? 'adding' : 'updating'} expense:`, error);
+        if(statusMessageEl) statusMessageEl.textContent = `Error: ${error.message}. Check console.`;
     }
 
     await updateAll();
     setTimeout(() => { if(statusMessageEl) statusMessageEl.textContent = ''; }, 3000);
 }
 
+
+/**
+ * Handles the DELETE operation for an expense.
+ * @param {string} id - The UUID of the expense to delete.
+ */
+async function deleteExpense(id) {
+    if (!confirm("Are you sure you want to delete this expense? This cannot be undone.")) {
+        return;
+    }
+
+    if(statusMessageEl) statusMessageEl.textContent = 'Deleting expense...';
+    
+    try {
+        const response = await fetch(`${API_BASE}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        // API returns 200 for success
+        if (response.status === 200) {
+            if(statusMessageEl) statusMessageEl.textContent = 'Expense deleted successfully!';
+        } else {
+            throw new Error(`API returned status ${response.status}: ${await response.text()}`);
+        }
+    } catch (error) {
+        console.error('Error deleting expense:', error);
+        if(statusMessageEl) statusMessageEl.textContent = `Error deleting expense: ${error.message}. Check console.`;
+    }
+    
+    await updateAll();
+    setTimeout(() => { if(statusMessageEl) statusMessageEl.textContent = ''; }, 3000);
+}
+
+
 function renderTable() {
     const monthlyExpenses = expenses;
 
     const rows = monthlyExpenses.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
 
+    // Ensure the expense ID (UUID) is used in the data-id attribute for lookups
     if(expenseTableBody) expenseTableBody.innerHTML = rows.map(r => `<tr data-id="${r.id}">
         <td>${r.date.slice(0, 10)}</td>
         <td>${escapeHtml(r.note || '')}</td>
         <td>${r.categoryName}</td>
         <td>₹${Number(r.amount).toFixed(2)}</td>
         <td style='text-align:right'>
-          <button class='btn ghost small edit' style='padding:5px 8px; font-size:12px;'>Edit</button> 
-          <button class='btn ghost small del' style='padding:5px 8px; font-size:12px;'>Del</button>
+          <button class='btn ghost small edit'>Edit</button> 
+          <button class='btn ghost small del'>Del</button>
         </td>
       </tr>`).join('') || '<tr><td colspan=5 class="small muted">No expenses found for this period.</td></tr>';
 }
