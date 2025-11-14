@@ -4,13 +4,15 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Smart Expense Tracker — API Integrated Frontend</title>
+    <title>Smart Expense Tracker — Final Integrated Frontend</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQeB/4TShV+Y/5pB4lq4b4xIqR6r+V42r8WJ+s8x2E5z+E9w1l2A9W1B1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <div id="statusMessage" style="display: none;"></div>
+
     <div class="app" id="app">
         <aside class="sidebar">
             <div class="brand">
@@ -19,6 +21,12 @@
                     <h1>Smart Expense</h1>
                     <div class="muted-text">Track your spending beautifully</div>
                 </div>
+            </div>
+
+            <div class="balance-box">
+                <div class="small-text">Total Balance (Demo)</div>
+                <div class="balance-amount-display" id="sidebarBalance">₹89081.75</div>
+                <div class="small-text">Since inception: <span id="sinceInception">₹0.00</span></div>
             </div>
 
             <nav class="nav-links">
@@ -35,12 +43,19 @@
 
             <div class="actions">
                 <button class="btn primary" id="addExpenseBtn">+ Add Expense</button>
+                <button class="btn ghost" id="exportBtn">Export to CSV</button>
+            </div>
+            
+            <div class="categories sidebar-cats">
+                <h3>Categories</h3>
+                <div class="cat-list" id="sidebarCatList">
+                    </div>
             </div>
         </aside>
 
         <main class="main">
             <div class="top-bar">
-                <div id="statusMessage">Fetching data...</div>
+                <input type="text" placeholder="Search notes or category..." class="search-bar" id="searchBar">
                 <div class="user-info">
                     <select id="monthSelector" class="month-selector"></select>
                     <div class="user-name" id="userName" ondblclick="editUserName()">User</div>
@@ -48,10 +63,8 @@
             </div>
 
             <div class="view active" id="dashboard-view">
-                <h2>📊 Dashboard Overview</h2>
-                
                 <div class="grid top-stats">
-                    <div class="card balance-card-top">
+                    <div class="card">
                         <h3>Current Balance</h3>
                         <p class="balance-amount-display" id="balance">₹1,00,000.00</p>
                     </div>
@@ -71,7 +84,7 @@
 
                 <div class="chart-grid">
                     <div class="chart-card">
-                        <h3>Monthly Expenses Trend</h3>
+                        <h3>Monthly Expenses Trend (Last 6 Months)</h3>
                         <div class="chart-container">
                             <canvas id="lineChart"></canvas>
                         </div>
@@ -99,9 +112,6 @@
 
             <div class="view" id="transactions-view">
                 <h2>💰 Recent Expenses</h2>
-                <div class="actions-transaction">
-                    <button class="btn ghost" id="exportBtn">Export to CSV</button>
-                </div>
                 <div class="table-section">
                     <div class="table-title">
                         <div><strong>Detailed Transaction List</strong></div>
@@ -125,6 +135,7 @@
             <div class="view" id="settings-view">
                 <h2>⚙️ Application Settings</h2>
                 <div class="settings-grid">
+                    
                     <div class="card settings-card">
                         <h3>Initial Balance</h3>
                         <div class="small">Define your starting balance here.</div>
@@ -139,12 +150,17 @@
                             </p>
                         </div>
                     </div>
-
-                    <div class="card settings-card">
-                        <h3>Categories</h3>
-                        <div class="small">All available categories.</div>
+                    
+                    <div class="card settings-card category-management-card">
+                        <h3>Manage Categories</h3>
+                        <div class="small">Add or remove expense categories.</div>
+                        <div class="add-cat-section">
+                            <input type="text" id="newCatName" placeholder="New category name" class="setting-input small-input">
+                            <button class="btn primary small" id="addCatBtn">Add</button>
+                        </div>
                         <div class="categories" id="catListContainer">
-                            <div class="cat-list" id="catList"></div>
+                            <div class="cat-list-detailed" id="catListDetailed">
+                                </div>
                         </div>
                     </div>
                 </div>
