@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Smart Expense Tracker — API Integrated Frontend</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQeB/4TShV+Y/5pB4lq4b4xIqR6r+V42r8WJ+s8x2E5z+E9w1l2A9W1B1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app" id="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo">SE</div>
+                <div>
+                    <h1>Smart Expense</h1>
+                    <div class="muted-text">Track your spending beautifully</div>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="#dashboard" class="nav-link active" data-view="dashboard">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard
+                </a>
+                <a href="#transactions" class="nav-link" data-view="transactions">
+                    <i class="fa-solid fa-money-bill-transfer"></i> Expenses
+                </a>
+                <a href="#settings" class="nav-link" data-view="settings">
+                    <i class="fa-solid fa-gear"></i> Settings
+                </a>
+            </nav>
+
+            <div class="actions">
+                <button class="btn primary" id="addExpenseBtn">+ Add Expense</button>
+                </div>
+        </aside>
+
+        <main class="main">
+            <div class="top-bar">
+                <div id="statusMessage">Fetching data...</div>
+                <div class="user-info">
+                    <select id="monthSelector" class="month-selector"></select>
+                    <div class="user-name" id="userName" ondblclick="editUserName()">User</div>
+                </div>
+            </div>
+
+            <div class="view active" id="dashboard-view">
+                <h2>📊 Dashboard Overview</h2>
+                
+                <div class="grid top-stats">
+                    <div class="card balance-card-top">
+                        <h3>Current Balance</h3>
+                        <p class="balance-amount-display" id="balance">₹1,00,000.00</p>
+                    </div>
+                    <div class="card">
+                        <h3>Total Spent</h3>
+                        <p id="totalSpent">₹0.00</p>
+                    </div>
+                    <div class="card">
+                        <h3>Month Spent</h3>
+                        <p id="monthlyTotal">₹0.00</p>
+                    </div>
+                    <div class="card">
+                        <h3>Top Category</h3>
+                        <p id="topCat">-</p>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <h3>Monthly Expenses Trend</h3>
+                        <div class="chart-container">
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Spending by Category</h3>
+                        <div class="chart-container pie-chart-container">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Total Expenses by Month</h3>
+                        <div class="chart-container">
+                            <canvas id="barChartMock"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Top Categories (Annual)</h3>
+                        <div class="chart-container pie-chart-container">
+                            <canvas id="doughnutChartMock"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view" id="transactions-view">
+                <h2>💰 Recent Expenses</h2>
+                <div class="actions-transaction">
+                    <button class="btn ghost" id="exportBtn">Export to CSV</button>
+                </div>
+                <div class="table-section">
+                    <div class="table-title">
+                        <div><strong>Detailed Transaction List</strong></div>
+                        <div class="small">Filtered by selected month</div>
+                    </div>
+                    <table id="expenseTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Note</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="view" id="settings-view">
+                <h2>⚙️ Application Settings</h2>
+                <div class="settings-grid">
+                    <div class="card settings-card">
+                        <h3>Initial Balance</h3>
+                        <div class="small">Define your starting balance here.</div>
+                        <div class="balance-setting">
+                            <label for="initialBalanceInput">Total Balance (₹)</label>
+                            <input type="number" id="initialBalanceInput" value="100000.00" class="setting-input">
+                            <p class="muted-text small" style="margin-top: 10px;">
+                                Current Account Balance: <span id="balanceSettingDisplay">₹1,00,000.00</span>
+                            </p>
+                            <p class="muted-text small">
+                                Total Spent Since Inception: <span id="totalSpentSettingDisplay">₹0.00</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card settings-card">
+                        <h3>Categories</h3>
+                        <div class="small">All available categories.</div>
+                        <div class="categories" id="catListContainer">
+                            <div class="cat-list" id="catList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-backdrop" id="modalBackdrop">
+        <div class="modal" role="dialog" aria-modal="true">
+            <h3 id="modalTitle" style="margin-bottom:10px;">Add Expense</h3>
+            <label>Amount</label>
+            <input type="number" id="amt" placeholder="1000" />
+            <label>Category</label>
+            <select id="catSelect"></select>
+            <label>Note</label>
+            <input id="note" placeholder="Bought groceries" />
+            <label>Date</label>
+            <input type="date" id="date" />
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px">
+                <button class="btn ghost" id="cancelBtn">Cancel</button>
+                <button class="btn primary" id="saveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
