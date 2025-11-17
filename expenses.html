@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Expense Tracker — Expenses</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQeB/4TShV+Y/5pB4lq4b4xIqR6r+V42r8WJ+s8x2E5z+E9w1l2A9W1B1w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="expenses">
+  <div id="statusMessage" style="display:none;"></div>
+
+  <div class="app" id="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">SE</div>
+        <div class="brand-text">
+          <h1>Smart Expense</h1>
+          <div class="muted-text">Admin panel</div>
+        </div>
+      </div>
+
+      <div class="balance-box" id="sidebarBalanceBox" data-mode="budget-only">
+        <div class="small-text">Current Month Balance</div>
+        <div class="balance-amount-display" id="sidebarBalance">₹0.00</div>
+        <div class="small-text">Spent this month: <span id="sidebarMonthSpent">₹0.00</span></div>
+      </div>
+
+      <nav class="nav-links">
+        <a href="dashboard.html" class="nav-link">
+          <i class="fa-solid fa-gauge-high"></i> <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="expenses.html" class="nav-link active">
+          <i class="fa-solid fa-money-bill-transfer"></i> <span class="nav-text">Expenses</span>
+        </a>
+        <a href="charts.html" class="nav-link">
+          <i class="fa-solid fa-chart-line"></i> <span class="nav-text">Charts</span>
+        </a>
+        <a href="settings.html" class="nav-link">
+          <i class="fa-solid fa-gear"></i> <span class="nav-text">Settings</span>
+        </a>
+      </nav>
+
+      <div class="categories sidebar-cats">
+        <h3>Categories</h3>
+        <div class="cat-list" id="sidebarCatList"></div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <header class="top-bar">
+        <button class="icon-btn" id="sidebarToggle" title="Toggle sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="top-bar-center">
+          <select id="monthSelector" class="month-selector"></select>
+        </div>
+
+        <div class="user-info">
+          <button class="icon-btn" id="themeToggleBtn" title="Toggle theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar"></div>
+            <div class="user-name" id="userName" ondblclick="editUserName()">User</div>
+          </div>
+        </div>
+      </header>
+
+      <section>
+        <div class="mode-badge" id="modeBadge">Mode: -</div>
+
+        <div class="page-header">
+          <h2>Expenses</h2>
+          <div class="page-header-actions">
+            <button class="btn primary" id="addExpenseBtn"><i class="fa-solid fa-plus"></i> Add Expense</button>
+            <button class="btn ghost" id="exportBtn"><i class="fa-solid fa-file-export"></i> Export CSV</button>
+          </div>
+        </div>
+
+        <div class="table-section">
+          <div class="table-title">
+            <div><strong>Transaction List</strong></div>
+            <div class="small">Filtered by selected month</div>
+          </div>
+          <div class="table-wrapper">
+            <table id="expenseTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Note</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th style="width:130px;"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- EXPENSE MODAL -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="modalTitle" style="margin-bottom:10px;">Add Expense</h3>
+      <label>Amount</label>
+      <input type="number" id="amt" placeholder="1000" />
+      <label>Category</label>
+      <select id="catSelect"></select>
+      <label>Note</label>
+      <input id="note" placeholder="Bought groceries" />
+      <label>Date</label>
+      <input type="date" id="date" />
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px">
+        <button class="btn ghost" id="cancelBtn">Cancel</button>
+        <button class="btn primary" id="saveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Expense Tracker — Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQeB/4TShV+Y/5pB4lq4b4xIqR6r+V42r8WJ+s8x2E5z+E9w1l2A9W1B1w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="settings">
+  <div id="statusMessage" style="display:none;"></div>
+
+  <div class="app" id="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">SE</div>
+        <div class="brand-text">
+          <h1>Smart Expense</h1>
+          <div class="muted-text">Settings</div>
+        </div>
+      </div>
+
+      <div class="balance-box" id="sidebarBalanceBox" data-mode="budget-only">
+        <div class="small-text">Current Month Balance</div>
+        <div class="balance-amount-display" id="sidebarBalance">₹0.00</div>
+        <div class="small-text">Spent this month: <span id="sidebarMonthSpent">₹0.00</span></div>
+      </div>
+
+      <nav class="nav-links">
+        <a href="dashboard.html" class="nav-link">
+          <i class="fa-solid fa-gauge-high"></i> <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="expenses.html" class="nav-link">
+          <i class="fa-solid fa-money-bill-transfer"></i> <span class="nav-text">Expenses</span>
+        </a>
+        <a href="charts.html" class="nav-link">
+          <i class="fa-solid fa-chart-line"></i> <span class="nav-text">Charts</span>
+        </a>
+        <a href="settings.html" class="nav-link active">
+          <i class="fa-solid fa-gear"></i> <span class="nav-text">Settings</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <header class="top-bar">
+        <button class="icon-btn" id="sidebarToggle" title="Toggle sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="top-bar-center"></div>
+
+        <div class="user-info">
+          <button class="icon-btn" id="themeToggleBtn" title="Toggle theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar"></div>
+            <div class="user-name" id="userName" ondblclick="editUserName()">User</div>
+          </div>
+        </div>
+      </header>
+
+      <section>
+        <div class="mode-badge" id="modeBadge">Mode: -</div>
+
+        <h2>Settings</h2>
+        <div class="settings-grid">
+          <!-- Balance & Mode -->
+          <div class="card settings-card">
+            <h3>Mode & Balance</h3>
+            <div class="small">Current mode is chosen on login. Budget is used only in Budget Mode.</div>
+
+            <div class="mode-explainer">
+              <div><strong>Budget Mode:</strong> Uses monthly initial balance as a budget.</div>
+              <div><strong>Track-Only Mode:</strong> Just tracks expenses, no balance.</div>
+            </div>
+
+            <div class="balance-setting" data-mode="budget-only">
+              <label for="initialBalanceInput">Monthly Budget (Initial Balance, ₹)</label>
+              <input type="number" id="initialBalanceInput" value="100000.00" class="setting-input">
+              <p class="muted-text small" style="margin-top: 10px;">
+                Current Month Balance: <span id="balanceSettingDisplay">₹0.00</span>
+              </p>
+              <p class="muted-text small">
+                Total Spent (All Time): <span id="totalSpentSettingDisplay">₹0.00</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Theme & Profile -->
+          <div class="card settings-card">
+            <h3>Appearance & Profile</h3>
+            <div class="small">Choose your theme and avatar.</div>
+
+            <div class="theme-toggle-row">
+              <span>Dark Mode</span>
+              <label class="switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="profile-settings">
+              <label>Profile Image URL</label>
+              <input type="text" id="avatarUrlInput" class="setting-input" placeholder="https://... (optional)">
+              <button class="btn primary small" id="saveAvatarBtn">Save Avatar</button>
+            </div>
+          </div>
+
+          <!-- Category Management -->
+          <div class="card settings-card category-management-card">
+            <h3>Manage Categories</h3>
+            <div class="small">Add or remove expense categories.</div>
+            <div class="add-cat-section">
+              <input type="text" id="newCatName" placeholder="New category name" class="setting-input small-input">
+              <button class="btn primary small" id="addCatBtn">Add</button>
+            </div>
+            <div class="categories" id="catListContainer">
+              <div class="cat-list-detailed" id="catListDetailed"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

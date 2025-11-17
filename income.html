@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Expense Tracker — Income</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQeB/4TShV+Y/5pB4lq4b4xIqR6r+V42r8WJ+s8x2E5z+E9w1l2A9W1B1w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="income">
+  <div id="statusMessage" style="display:none;"></div>
+
+  <div class="app" id="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">SE</div>
+        <div class="brand-text">
+          <h1>Smart Expense</h1>
+          <div class="muted-text">Track your income & spending</div>
+        </div>
+      </div>
+
+      <div class="balance-box">
+        <div class="small-text">Current Balance</div>
+        <div class="balance-amount-display" id="sidebarBalance">₹0.00</div>
+        <div class="small-text">Total Spent Since Inception: <span id="sinceInception">₹0.00</span></div>
+      </div>
+
+      <nav class="nav-links">
+        <a href="dashboard.html" class="nav-link">
+          <i class="fa-solid fa-chart-line"></i> <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="expenses.html" class="nav-link">
+          <i class="fa-solid fa-money-bill-transfer"></i> <span class="nav-text">Expenses</span>
+        </a>
+        <a href="income.html" class="nav-link active">
+          <i class="fa-solid fa-sack-dollar"></i> <span class="nav-text">Income</span>
+        </a>
+        <a href="charts.html" class="nav-link">
+          <i class="fa-solid fa-chart-pie"></i> <span class="nav-text">Charts</span>
+        </a>
+        <a href="settings.html" class="nav-link">
+          <i class="fa-solid fa-gear"></i> <span class="nav-text">Settings</span>
+        </a>
+      </nav>
+
+      <div class="actions">
+        <button class="btn primary" id="addIncomeBtn"><i class="fa-solid fa-plus"></i> <span>Add Income</span></button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="top-bar">
+        <button class="icon-btn" id="sidebarToggle" title="Toggle sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="top-bar-spacer"></div>
+
+        <div class="user-info">
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar"></div>
+            <div class="user-name" id="userName" ondblclick="editUserName()">User</div>
+          </div>
+        </div>
+      </div>
+
+      <section>
+        <h2>💵 Income</h2>
+        <div class="table-section">
+          <div class="table-title">
+            <div><strong>Income Transactions (Stored locally)</strong></div>
+          </div>
+          <table id="incomeTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Source</th>
+                <th>Note</th>
+                <th>Amount</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- INCOME MODAL -->
+  <div class="modal-backdrop" id="incomeModalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="incomeModalTitle" style="margin-bottom:10px;">Add Income</h3>
+      <label>Amount</label>
+      <input type="number" id="incomeAmt" placeholder="15000" />
+      <label>Source</label>
+      <input id="incomeSource" placeholder="Salary" />
+      <label>Note</label>
+      <input id="incomeNote" placeholder="Optional note" />
+      <label>Date</label>
+      <input type="date" id="incomeDate" />
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px">
+        <button class="btn ghost" id="incomeCancelBtn">Cancel</button>
+        <button class="btn primary" id="incomeSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

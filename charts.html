@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Expense Tracker — Charts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQeB/4TShV+Y/5pB4lq4b4xIqR6r+V42r8WJ+s8x2E5z+E9w1l2A9W1B1w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="charts">
+  <div id="statusMessage" style="display:none;"></div>
+
+  <div class="app" id="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">SE</div>
+        <div class="brand-text">
+          <h1>Smart Expense</h1>
+          <div class="muted-text">Analytics</div>
+        </div>
+      </div>
+
+      <div class="balance-box" id="sidebarBalanceBox" data-mode="budget-only">
+        <div class="small-text">Current Month Balance</div>
+        <div class="balance-amount-display" id="sidebarBalance">₹0.00</div>
+        <div class="small-text">Spent this month: <span id="sidebarMonthSpent">₹0.00</span></div>
+      </div>
+
+      <nav class="nav-links">
+        <a href="dashboard.html" class="nav-link">
+          <i class="fa-solid fa-gauge-high"></i> <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="expenses.html" class="nav-link">
+          <i class="fa-solid fa-money-bill-transfer"></i> <span class="nav-text">Expenses</span>
+        </a>
+        <a href="charts.html" class="nav-link active">
+          <i class="fa-solid fa-chart-line"></i> <span class="nav-text">Charts</span>
+        </a>
+        <a href="settings.html" class="nav-link">
+          <i class="fa-solid fa-gear"></i> <span class="nav-text">Settings</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <header class="top-bar">
+        <button class="icon-btn" id="sidebarToggle" title="Toggle sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="top-bar-center">
+          <select id="monthSelector" class="month-selector"></select>
+        </div>
+
+        <div class="user-info">
+          <button class="icon-btn" id="themeToggleBtn" title="Toggle theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar"></div>
+            <div class="user-name" id="userName" ondblclick="editUserName()">User</div>
+          </div>
+        </div>
+      </header>
+
+      <section>
+        <div class="mode-badge" id="modeBadge">Mode: -</div>
+
+        <h2>Charts</h2>
+        <p class="small muted-text">All charts use real data from your Expense API.</p>
+
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3>1. Monthly Total (Last 6 Months)</h3>
+            <div class="chart-container">
+              <canvas id="monthlyTrendChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>2. Category Share (Current Period)</h3>
+            <div class="chart-container pie-chart-container big-pie">
+              <canvas id="categoryPieChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>3. Daily Spend (Selected Month)</h3>
+            <div class="chart-container">
+              <canvas id="dailyBarChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>4. Top Categories (Last 6 Months)</h3>
+            <div class="chart-container">
+              <canvas id="sixMonthCategoryChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
