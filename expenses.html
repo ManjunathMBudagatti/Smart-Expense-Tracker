@@ -5,10 +5,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Smart Expense Tracker — Expenses</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQeB/4TShV+Y/5pB4lq4b4xIqR6r+V42r8WJ+s8x2E5z+E9w1l2A9W1B1w=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -22,7 +20,7 @@
         <div class="logo">SE</div>
         <div class="brand-text">
           <h1>Smart Expense</h1>
-          <div class="muted-text">Admin panel</div>
+          <div class="muted-text">Expenses</div>
         </div>
       </div>
 
@@ -34,18 +32,24 @@
 
       <nav class="nav-links">
         <a href="dashboard.html" class="nav-link">
-          <i class="fa-solid fa-gauge-high"></i> <span class="nav-text">Dashboard</span>
+          <i class="fa-solid fa-gauge-high"></i><span class="nav-text">Dashboard</span>
         </a>
         <a href="expenses.html" class="nav-link active">
-          <i class="fa-solid fa-money-bill-transfer"></i> <span class="nav-text">Expenses</span>
+          <i class="fa-solid fa-money-bill-transfer"></i><span class="nav-text">Expenses</span>
         </a>
         <a href="charts.html" class="nav-link">
-          <i class="fa-solid fa-chart-line"></i> <span class="nav-text">Charts</span>
+          <i class="fa-solid fa-chart-line"></i><span class="nav-text">Charts</span>
         </a>
         <a href="settings.html" class="nav-link">
-          <i class="fa-solid fa-gear"></i> <span class="nav-text">Settings</span>
+          <i class="fa-solid fa-gear"></i><span class="nav-text">Settings</span>
         </a>
       </nav>
+
+      <div class="sidebar-actions">
+        <button class="btn primary" id="addExpenseBtn">
+          <i class="fa-solid fa-plus"></i><span class="nav-text">Add Expense</span>
+        </button>
+      </div>
 
       <div class="categories sidebar-cats">
         <h3>Categories</h3>
@@ -81,8 +85,9 @@
         <div class="page-header">
           <h2>Expenses</h2>
           <div class="page-header-actions">
-            <button class="btn primary" id="addExpenseBtn"><i class="fa-solid fa-plus"></i> Add Expense</button>
-            <button class="btn ghost" id="exportBtn"><i class="fa-solid fa-file-export"></i> Export CSV</button>
+            <button class="btn ghost" id="exportBtn">
+              <i class="fa-solid fa-file-export"></i> Export CSV
+            </button>
           </div>
         </div>
 
@@ -110,7 +115,7 @@
     </main>
   </div>
 
-  <!-- EXPENSE MODAL -->
+  <!-- ADD / EDIT EXPENSE MODAL -->
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal" role="dialog" aria-modal="true">
       <h3 id="modalTitle" style="margin-bottom:10px;">Add Expense</h3>
@@ -125,6 +130,18 @@
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px">
         <button class="btn ghost" id="cancelBtn">Cancel</button>
         <button class="btn primary" id="saveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRM MODAL -->
+  <div class="modal-backdrop" id="confirmBackdrop">
+    <div class="modal confirm-modal" role="dialog" aria-modal="true">
+      <h3>Delete Expense</h3>
+      <p class="small">Are you sure you want to delete this expense? This cannot be undone.</p>
+      <div class="confirm-actions">
+        <button class="btn ghost" id="confirmCancelBtn">Cancel</button>
+        <button class="btn danger" id="confirmDeleteBtn">Delete</button>
       </div>
     </div>
   </div>

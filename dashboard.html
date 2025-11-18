@@ -5,10 +5,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Smart Expense Tracker — Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMD/CDQeB/4TShV+Y/5pB4lq4b4xIqR6r+V42r8WJ+s8x2E5z+E9w1l2A9W1B1w=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -22,7 +22,7 @@
         <div class="logo">SE</div>
         <div class="brand-text">
           <h1>Smart Expense</h1>
-          <div class="muted-text">Admin panel</div>
+          <div class="muted-text">Dashboard</div>
         </div>
       </div>
 
@@ -34,18 +34,24 @@
 
       <nav class="nav-links">
         <a href="dashboard.html" class="nav-link active">
-          <i class="fa-solid fa-gauge-high"></i> <span class="nav-text">Dashboard</span>
+          <i class="fa-solid fa-gauge-high"></i><span class="nav-text">Dashboard</span>
         </a>
         <a href="expenses.html" class="nav-link">
-          <i class="fa-solid fa-money-bill-transfer"></i> <span class="nav-text">Expenses</span>
+          <i class="fa-solid fa-money-bill-transfer"></i><span class="nav-text">Expenses</span>
         </a>
         <a href="charts.html" class="nav-link">
-          <i class="fa-solid fa-chart-line"></i> <span class="nav-text">Charts</span>
+          <i class="fa-solid fa-chart-line"></i><span class="nav-text">Charts</span>
         </a>
         <a href="settings.html" class="nav-link">
-          <i class="fa-solid fa-gear"></i> <span class="nav-text">Settings</span>
+          <i class="fa-solid fa-gear"></i><span class="nav-text">Settings</span>
         </a>
       </nav>
+
+      <div class="sidebar-actions">
+        <button class="btn primary" id="addExpenseBtn">
+          <i class="fa-solid fa-plus"></i><span class="nav-text">Add Expense</span>
+        </button>
+      </div>
 
       <div class="categories sidebar-cats">
         <h3>Categories</h3>
@@ -75,54 +81,52 @@
         </div>
       </header>
 
-      <section class="dashboard-section">
+      <section class="dashboard-summary">
         <div class="mode-badge" id="modeBadge">Mode: -</div>
         <div id="budgetWarning" class="banner banner-warning" style="display:none;">
           You have exceeded your monthly budget!
         </div>
 
-        <h2>Overview</h2>
-        <div class="grid top-stats">
-          <div class="card" data-mode="budget-only">
-            <h3>Current Month Balance</h3>
-            <p class="balance-amount-display" id="balance">₹0.00</p>
+        <div class="grid summary-grid">
+          <div class="card anim">
+            <h3>Total Spent (Selected Period)</h3>
+            <p id="summaryTotal">₹0.00</p>
           </div>
-
-          <div class="card" data-mode="budget-only">
-            <h3>Total Spent (All Time)</h3>
-            <p id="totalSpentSettingDisplay">₹0.00</p>
+          <div class="card anim">
+            <h3>Total Transactions</h3>
+            <p id="summaryTxns">0</p>
           </div>
-
-          <div class="card">
-            <h3>Spent This Month</h3>
-            <p id="monthlyTotal">₹0.00</p>
-          </div>
-
-          <div class="card">
-            <h3>Transactions This Month</h3>
-            <p id="totalCount">0</p>
+          <div class="card anim">
+            <h3>Insight</h3>
+            <p id="insightText" class="small">Add some expenses to see smart insights here.</p>
           </div>
         </div>
+      </section>
 
-        <div class="grid secondary-stats">
-          <div class="card">
-            <h3>Top Category This Month</h3>
-            <p id="topCat">-</p>
+      <section class="chart-grid-2">
+        <div class="chart-card anim">
+          <div class="chart-header">
+            <h3>Monthly Expense Trend</h3>
+            <span class="chart-subtitle">Last 6 months</span>
           </div>
-          <div class="card">
-            <h3>Quick Navigation</h3>
-            <p class="small">Manage your expenses and view analytics.</p>
-            <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-              <a href="expenses.html" class="btn primary small">View Expenses</a>
-              <a href="charts.html" class="btn ghost small">View Charts</a>
-            </div>
+          <div class="chart-container">
+            <canvas id="dashTrendChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card anim">
+          <div class="chart-header">
+            <h3>Spending by Category</h3>
+            <span class="chart-subtitle">Selected period</span>
+          </div>
+          <div class="chart-container pie-chart-container big-pie">
+            <canvas id="dashCategoryChart"></canvas>
           </div>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- EXPENSE MODAL (shared) -->
+  <!-- ADD / EDIT EXPENSE MODAL -->
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal" role="dialog" aria-modal="true">
       <h3 id="modalTitle" style="margin-bottom:10px;">Add Expense</h3>
@@ -141,6 +145,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="app.js"></script>
 </body>
 
